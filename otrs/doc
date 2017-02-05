@@ -1,0 +1,147 @@
+So i wanted to install OTRS in a freenas jail
+
+quite eays i thought:
+
+
+create jail from webGUI
+jexec into the gui and do a
+pkg search otrs
+and 
+pkg install  otrs-5.0.10
+afterwoods i realized that i had a database client but no database so i had to do a
+pkg search mysql56
+and 
+pkg install  mysql56-server-5.6.33
+
+now it is time to configure mysql according to the manual ( fro OTRS) 
+
+
+
+and i found this
+https://forums.freebsd.org/threads/23765/
+nice write up which is currently my secind source;
+my cgi is not beeing served don't know yet why...
+
+after some fiddling around i get an error 500 both for /cgi-bin/test-cgi and for /otrs/installer.pl
+the first one i was able to fix by 
+pkg install bash-4.3.46_1
+now at least this works but i don't remember what i did to get cgi to run in the first place
+
+
+
+so i got my test cgi to run
+and after unsetting the User www option it ran my skript too;
+so i just reeinstalled both
+
+and after i ran the permissions skript it ran
+
+
+and now i will do the gui setup
+
+now i am getting gateway timeouts while setting up the database (EG crating the tables)
+
+so i will just drop the db again and retry from another computer
+
+https://otrs.github.io/doc/manual/admin/3.3/en/html/manual-installation-of-otrs.html
+it seems to be able to run with this
+
+cpan install Log::Log4perl
+
+so lets fix my db mess with a central db server
+###
+#my.conf
+###
+#added
+
+
+user            = mysql
+#pid-file        = /var/run/mysqld/mysqld.pid
+#socket          = /var/run/mysqld/mysqld.sock
+port            = 3306
+#basedir         = /usr
+#datadir         = /var/lib/mysql
+#tmpdir          = /tmp
+#language        = /usr/share/mysql/English
+bind-address    = x.x.x.x
+# skip-networking
+
+####
+
+lets start mysql
+mysql
+use mysql;
+create user otrs identified by 'PASS';       
+update user set host='%' where host='localhost' and user='otrs';
+create database otrs;
+grant all on otrs.* to user otrs;
+
+#
+that should be it
+
+
+now lets fix the size options
+add
+
+max_allowed_packet   = 20M
+query_cache_size     = 32M
+innodb_log_file_size = 256M
+
+to my.cnf
+
+add
+
+
+#########################################
+#new jail to try
+#https://otrs.github.io/doc/manual/admin/stable/en/html/manual-installation-of-otrs.html
+
+pkg install otrs apache24
+perl /usr/local/otrs/bin/otrs.CheckModules.pl
+#and install the modules you still need
+cpan  DBD::ODBC
+#check the other packages
+perl -cw /usr/local/otrs/bin/cgi-bin/index.pl
+cpan CGI::Carp CGI::Util
+
+cpan install Log::Log4perl HTML::Truncate
+
+perl -cw /usr/local/otrs/bin/cgi-bin/customer.pl
+perl -cw /usr/local/otrs/bin/otrs.Console.pl
+
+#next part according to the manual we setup the apache (which i just installed in the first step)
+pkg install ap24-mod_perl2-2.0.9,3
+#link against the default conf for otrs
+ln /usr/local/otrs/scripts/apache2-httpd.include.conf /usr/local/etc/apache24/Includes/zzz_otrs.conf
+service apache24 restart
+#setting the permissions
+/usr/local/otrs/bin/otrs.SetPermissions.pl --admin-group=wheel --otrs-user=otrs --web-group=www /usr/local/otrs
+#so i forgot this
+pkg install p5-Test-mysqld-0.17_1 p5-version-0.99.15 p5-Test-Version-1.05000  mysql56-client-5.6.33 bash-completion-2.1_6,1
+echo "max_allowed_packet   = 20M" >>/usr/local/etc/.my.cnf
+echo "query_cache_size     = 32M" >> /usr/local/etc/.my.cnf
+echo "innodb_log_file_size = 256M" >> /usr/local/etc/.my.cnf
+
+#so now open your web installer
+#and it crashed because of shm again
+#add to the jail options
+allow.sysvipc=true
+
+#drop the old db and recreate it empty;
+#web installer worked til step three
+#so i am further now than originally
+
+#now lets setup
+ 
+#ok it worked i have an admin acocunt;
+#but i had to add another cpan package but i added this in the script before
+#add otrs to the ww group
+pw group mod www -M otrs
+su otrs
+/usr/local/otrs/bin/otrs.Daemon.pl start
+/usr/local/otrs/bin/Cron.sh start
+# was not able to setup the bash completion
+
+
+
+
+#to setup pgp i changed the webserver to runs as user otrs
