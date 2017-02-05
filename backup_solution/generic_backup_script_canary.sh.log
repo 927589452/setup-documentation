@@ -1,0 +1,11 @@
+Mo 28. Mär 20:54:48 CEST 2016
+/usr/bin/rsync -e "/usr/bin/ssh -p 22 -l root" -avR "canary:/storage/900B-8135 /storage/emulated/0/ " --backup --backup-dir=backup --suffix=14511 --exclude=Downloads --exclude=DCIM --exclude=Pictures /home/jens/canary/backup/28 --link-dest=/home/jens/canary/backup/last
+receiving incremental file list
+rsync: link_stat "/storage/900B-8135 /storage/emulated/0/ " failed: No such file or directory (2)
+
+sent 47 bytes  received 111 bytes  316.00 bytes/sec
+total size is 0  speedup is 0.00
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1655) [Receiver=3.1.1]
+/bin/ln -nsf /home/jens/canary/backup/28 /home/jens/canary/backup/last
+/bin/ln: failed to create symbolic link ‘/home/jens/canary/backup/last’: No such file or directory
+Mo 28. Mär 20:54:49 CEST 2016

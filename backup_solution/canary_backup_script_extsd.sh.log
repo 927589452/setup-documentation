@@ -1,0 +1,13 @@
+Mo 4. Apr 18:57:55 CEST 2016
+/usr/bin/rsync -avR "/storage/900B-8135 " --backup --backup-dir=backup --archive --recursive --suffix=22362 --exclude=Downloads --exclude=DCIM --exclude=Pictures /home/jens/canary/backup_sd/ --link-dest=/home/jens/canary/backup_sd//last
+sending incremental file list
+rsync: link_stat "/storage/900B-8135 " failed: No such file or directory (2)
+created directory /home/jens/canary/backup_sd
+--link-dest arg does not exist: /home/jens/canary/backup_sd//last
+Created backup_dir backup/
+
+sent 18 bytes  received 163 bytes  362.00 bytes/sec
+total size is 0  speedup is 0.00
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1183) [sender=3.1.1]
+/bin/ln -nsf /home/jens/canary/backup_sd/ /home/jens/canary/backup_sd/last
+Mo 4. Apr 18:57:55 CEST 2016
