@@ -1,0 +1,4 @@
+#install ezjail
+ezjail-admin install
+ezjail-admin create
+
