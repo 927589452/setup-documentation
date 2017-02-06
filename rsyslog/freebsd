@@ -1,0 +1,15 @@
+sudo pkg install rsyslog
+#install rsyslog daemon
+#add the following lines to /etc/rc.conf
+## syslogd_enable="NO"
+## rsyslogd_enable="YES"
+sudo cp /etc/syslog.conf /usr/local/etc/rsyslog.conf
+#mv the premade config to the local path
+sudo vi /usr/local/etc/rsyslog.conf  
+#add the modules according to the installer 
+##module(load="immark")   # provides --MARK-- message capability
+##module(load="imuxsock") # provides support for local system logging
+##module(load="imklog")   # kernel logging
+#add the remote server by IP
+##
+## *.* @REM.OTE.SER.VER
