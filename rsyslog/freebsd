@@ -13,3 +13,5 @@ sudo vi /usr/local/etc/rsyslog.conf
 #add the remote server by IP
 ##
 ## *.* @REM.OTE.SER.VER
+sudo service rsyslogd start
+#start the daemon
